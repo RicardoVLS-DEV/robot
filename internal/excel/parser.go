@@ -1,7 +1,6 @@
 package excel
 
 import (
-	"robot/internal/domain"
 	"strings"
 
 	"github.com/xuri/excelize/v2"
@@ -35,11 +34,9 @@ type FormRow struct {
 func ParseRows(path string) ([]FormRow, error) {
 	f, err := excelize.OpenFile(path)
 	if err != nil {
-		return nil, domain.ErrInvalidFile
+		return nil, err
 	}
-	defer func() {
-		_ = f.Close()
-	}()
+	defer f.Close()
 
 	sheet := f.GetSheetName(1)
 	return getRows(f, sheet)
