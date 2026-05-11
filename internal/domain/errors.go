@@ -1,12 +1,37 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
-	ErrInvalidName = errors.New("invalid name")
-	ErrInvalidEmail = errors.New("invalid email")
 	ErrEmpty = errors.New("field empty")
-	ErrInvalidFile = errors.New("invalid file")
-	ErrClosingFile = errors.New("error closing the file")
-	ErrUnsuccessIntegrante = errors.New("something went wrong by creating a integrante")
+	ErrNotEnoughMembers = errors.New("not enough members to add to team")
 )
+
+type RobotError struct {
+	Op	string
+	Field string
+	Err error
+}
+
+func (e *RobotError) Error() string {
+	return	fmt.Sprintf("[%s:%s] %s", e.Field, e.Op, e.Err) 
+}
+
+func (e *RobotError) Unwrap() error {
+	return e.Err
+}
+
+func NewRobotErr(op, field string, err error) *RobotError {
+	if err == nil {
+		return nil
+	}
+
+	return &RobotError{
+		Op: op,
+		Field: field,
+		Err: err,
+	}
+}

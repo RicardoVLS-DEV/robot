@@ -7,28 +7,28 @@ import (
 )
 
 const (
-	HeaderMarcaTemporal     = "Marca temporal"
-	HeaderCorreo            = "Correo electrónico"
-	HeaderCategoria         = "Categoría a participar"
-	HeaderEquipo            = "Nombre del equipo"
-	HeaderIntegrantes       = "Nombre de los integrantes del equipo. Los equipos deberán estar conformados de mínimo dos y hasta cuatro integrantes."
-	HeaderCorreoIntegrantes = "Correos de los Integrantes del equipo"
-	HeaderEscuela      		= "Si eres alumno de la UTNC captura el nombre de tu carrera y tu grupo, si eres de otra institución compártenos donde estudias"
-	HeaderNivel       		= "¿Nivel de escolaridad que cursa?"
-	HeaderCapitan           = "Nombre del capitán del equipo"
-	HeaderAsesor            = "Nombre del asesor"
+	HeaderMarcaTemporal = "Marca temporal"
+	HeaderEmailLeader   = "Correo electrónico"
+	HeaderCategory      = "Categoría a participar"
+	HeaderNameTeam      = "Nombre del equipo"
+	HeaderMember        = "Nombre de los integrantes del equipo. Los equipos deberán estar conformados de mínimo dos y hasta cuatro integrantes."
+	HeaderEmailMember   = "Correos de los Integrantes del equipo"
+	HeaderSchool        = "Si eres alumno de la UTNC captura el nombre de tu carrera y tu grupo, si eres de otra institución compártenos donde estudias"
+	HeaderGrade         = "¿Nivel de escolaridad que cursa?"
+	HeaderNameLeader    = "Nombre del capitán del equipo"
+	HeaderTeacher       = "Nombre del asesor"
 )
 
 type FormRow struct {
-	Correo         		string
-	Categoria          	string
-	Equipo       		string
-	Integrantes        	[]string
-	CorreosIntegrantes 	[]string
-	Escuela      		string
-	Nivel 				string
-	Capitan            	string
-	Asesor             	string
+	EmailLeader  string
+	Category     string
+	NameTeam     string
+	Members      []string
+	EmailMembers []string
+	School       string
+	Grade        string
+	NameLeader   string
+	Teacher      string
 }
 
 func ParseRows(path string) ([]FormRow, error) {
@@ -56,15 +56,15 @@ func getRows(f *excelize.File, sheet string) ([]FormRow, error) {
 
 	for _, row := range rows[1:] {
 		formRows = append(formRows, FormRow{
-			Correo:         	cell(row, headers, HeaderCorreo),
-			Categoria:          cell(row, headers, HeaderCategoria),
-			Equipo:       		cell(row, headers, HeaderEquipo),
-			Integrantes:        splitCell(cell(row, headers, HeaderIntegrantes)),
-			CorreosIntegrantes: splitCell(cell(row, headers, HeaderCorreoIntegrantes)),
-			Escuela:        	cell(row, headers, HeaderEscuela),
-			Nivel:        		cell(row, headers, HeaderNivel),
-			Capitan:            cell(row, headers, HeaderCapitan),
-			Asesor:             cell(row, headers, HeaderAsesor),
+			EmailLeader:  cell(row, headers, HeaderEmailLeader),
+			Category:     cell(row, headers, HeaderCategory),
+			NameTeam:     cell(row, headers, HeaderNameTeam),
+			Members:      splitCell(cell(row, headers, HeaderMember)),
+			EmailMembers: splitCell(cell(row, headers, HeaderEmailMember)),
+			School:       cell(row, headers, HeaderSchool),
+			Grade:        cell(row, headers, HeaderGrade),
+			NameLeader:   cell(row, headers, HeaderNameLeader),
+			Teacher:      cell(row, headers, HeaderTeacher),
 		})
 	}
 

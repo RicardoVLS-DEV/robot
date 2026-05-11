@@ -1,69 +1,107 @@
 package app
 
 import (
-	"robot/internal/excel"
 	"robot/internal/domain"
+	"robot/internal/excel"
 )
-func LoadFromExcel(path string) error {
-	parsedRows, err := excel.ParseRows("form.xlsx")
+
+func LoadFromExcel(path string) ([]*domain.Team, error) {
+	parsedRows, err := excel.ParseRows(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	categorias := map[string]*domain.Categoria{}
+	if err := buildFromParsedRows(parsedRows); err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func buildFromParsedRows(parsedRows []excel.FormRow) error {
 	for _, row := range parsedRows {
-		equipo, err := buildTeam(row)
-		if err != nil {
-			return err 
+		if err := validateRow("LoadFromExcel", row); err != nil {
+			return err
 		}
-		if err := buildCategory(categorias, row.Categoria, equipo); err != nil {
-			return err 
+		if _, err := buildTeam(row); err != nil {
+			return err
 		}
 	}
 	return nil
 }
 
-func buildTeam(row excel.FormRow) (*domain.Equipo, error) {
-	lider, err := domain.NewIntegrante(row.Capitan, row.Correo, true)
+func buildTeam(row excel.FormRow) (*domain.Team, error) {
+	category, err := domain.NewCategory(row.Category, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	integrantes, err := buildIntegrantes(row.Integrantes, row.CorreosIntegrantes)
+	Leader, err := domain.NewLeader(row.NameLeader, row.EmailLeader)
 	if err != nil {
 		return nil, err
 	}
-	integrantes = append(integrantes, lider)
-	
-	return domain.NewEquipo(row.Equipo, row.Escuela, row.Nivel, integrantes)
-}
 
-func buildCategory(categorias map[string]*domain.Categoria, name string, equipo *domain.Equipo) error {
-	categoria, exists := categorias[name]
-	if !exists {
-		categoria, err := domain.NewCategoria(name, equipo)
-		if err != nil {
-			return err
-		}
-		categorias[name] = categoria
-		return nil
+	members, err := buildMembers(row.Members, row.EmailMembers)
+	if err != nil {
+		return nil, err
 	}
 
-	return categoria.AddEquipo(equipo)
+	var IDs []domain.MemberID
+
+	for _, member := range members {
+		IDs = append(IDs, member.ID)
+	}
+
+	return domain.NewTeam(
+		row.NameTeam,
+		row.School,
+		row.Grade,
+		IDs,
+		Leader.ID,
+		category.ID,
+	)
 }
 
-func buildIntegrantes(nombres, correos []string) ([]*domain.Integrante, error){
-	var integrantes []*domain.Integrante
+func buildMembers(names, emails []string) ([]*domain.Member, error) {
+	var members []*domain.Member
 
-	for index, nombre := range nombres {
-		correo := ""
-		if index < len(correos) {
-			correo = correos[index]
+	for index, name := range names {
+		email := ""
+		if index < len(emails) {
+			email = emails[index]
 		}
-		persona, err := domain.NewIntegrante(nombre, correo, false)
+		member, err := domain.NewMember(name, email)
 		if err != nil {
-			return integrantes, domain.ErrUnsuccessIntegrante
+			return members, err
 		}
-		integrantes = append(integrantes, persona)
+		members = append(members, member)
 	}
-	return integrantes, nil
+	return members, nil
+}
+
+func validateRow(op string, rows excel.FormRow) error {
+	if rows.NameTeam == "" {
+		return createErr(op, "Name Team", domain.ErrEmpty)
+	}
+
+	if rows.NameLeader == "" {
+		return createErr(op, "Name Leader", domain.ErrEmpty)
+	}
+
+	if rows.EmailLeader == "" {
+		return createErr(op, "Email Leader", domain.ErrEmpty)
+	}
+
+	if rows.Category == "" {
+		return createErr(op, "Category", domain.ErrEmpty)
+	}
+
+	if rows.School == "" {
+		return createErr(op, "School", domain.ErrEmpty)
+	}
+
+	return nil
+}
+
+func createErr(op, field string, err error) *domain.RobotError {
+	return domain.NewRobotErr(op, field, err)
 }

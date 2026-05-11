@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	if err := app.LoadFromExcel("form.xlsx"); err != nil {
+	if _, err := app.LoadFromExcel("form.xlsx"); err != nil {
 		fmt.Print(err)
 		return
 	}
