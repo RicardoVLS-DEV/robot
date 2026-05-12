@@ -6,25 +6,31 @@ import (
 )
 
 var (
-	ErrEmpty = errors.New("field empty")
-	ErrNotEnoughMembers = errors.New("not enough members to add to team")
+	ErrEmpty = errors.New("empty")
+	ErrNotEnough = errors.New("not enough")
+	ErrAlreadyExists = errors.New("already exists")
+	ErrNotFound = errors.New("not found")
+	ErrInvalid = errors.New("invalid")
 )
 
 type RobotError struct {
 	Op	string
 	Field string
+	Value any
 	Err error
+	Msg string
 }
 
 func (e *RobotError) Error() string {
-	return	fmt.Sprintf("[%s:%s] %s", e.Field, e.Op, e.Err) 
+	//[Create] ID: 1050 invalid. ID must be a number 
+	return	fmt.Sprintf("[%s] %s: %s - %s. %s", e.Op, e.Field, e.Value, e.Err, e.Msg) 
 }
 
 func (e *RobotError) Unwrap() error {
 	return e.Err
 }
 
-func NewRobotErr(op, field string, err error) *RobotError {
+func NewRobotErr(op, field string, value any, err error, msg string) *RobotError {
 	if err == nil {
 		return nil
 	}
@@ -32,6 +38,8 @@ func NewRobotErr(op, field string, err error) *RobotError {
 	return &RobotError{
 		Op: op,
 		Field: field,
+		Value: value,
 		Err: err,
+		Msg: msg,
 	}
 }

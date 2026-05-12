@@ -1,12 +1,14 @@
 package store
 
-func (s *Store) Migrate() error {
-	_, err := s.db.Exec(`
-		CREATE TABLE IF NOT EXISTS leaders (
-				id SERIAL PRIMARY KEY,
-				name TEXT NOT NULL,
-				email TEXT NOT NULL UNIQUE
-		);
-	`)
+import (
+	"context"
+	_ "embed"
+)
+
+//go:embed migration/schema.sql
+var schema string
+
+func (st *Store) Migrate(ctx context.Context) error {
+	_, err := st.db.Exec(ctx, schema)
 	return err
 }

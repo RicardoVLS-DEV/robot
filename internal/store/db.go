@@ -1,44 +1,47 @@
 package store
 
 import (
-	"database/sql"
+	"context"
 	"fmt"
 	"os"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Store struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
 func ConnStringFromEnv() string {
 	user := os.Getenv("POSTGRES_USER")
 	password := os.Getenv("POSTGRES_PASSWORD")
-	db := os.Getenv("POSTGRES_DB")
+	host := os.Getenv("POSTGRES_HOST")
 	port := os.Getenv("POSTGRES_PORT")
+	db := os.Getenv("POSTGRES_DB")
+
 
 	return fmt.Sprintf(
-		"postgres://%s:%s@localhost:%s/%s?sslmode=disable",
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		user,
 		password,
+		host,
 		port,
 		db,
 	)
 }
 
-func Open(conn string) (*Store, error) {
-	db, err := sql.Open("postgres", conn)
+func Open(ctx context.Context) (*Store, error) {
+	pool, err := pgxpool.New(ctx, ConnStringFromEnv())
 	if err != nil {
 		return nil, err
 	}
 
-	if err := db.Ping(); err != nil {
-		db.Close()
+	if err := pool.Ping(ctx); err != nil {
 		return nil, err
 	}
-
-	return &Store{db: db}, nil
+	return &Store{db: pool}, nil
 }
 
-func (s *Store) Close() error {
-	return s.db.Close()
+func (s *Store) Close() {
+	s.db.Close()
 }
