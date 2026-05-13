@@ -30,3 +30,24 @@ CREATE TABLE IF NOT EXISTS member (
     CONSTRAINT fk_team
         FOREIGN KEY (team_id) REFERENCES team(id)
 );
+
+CREATE TABLE IF NOT EXISTS robot (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    category_id INTEGER NOT NULL,
+    weight_cm DECIMAL(5,2),
+    width_cm DECIMAL(5,2),
+    height_cm TEXT,
+    length_cm DECIMAL(5,2),
+    is_valid BOOLEAN NOT NULL DEFAULT false,
+    invalid_reason TEXT,
+    autonomous TEXT,
+    power_button TEXT,
+    internal_power TEXT,
+    status TEXT NOT NULL DEFAULT 'pending'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    CONSTRAINT fk_team
+        FOREIGN KEY (team_id) REFERENCEs team(id)
+    CONSTRAINT fk_category
+    FOREIGN KEY (category_id) REFERENCES category(id)
+);
