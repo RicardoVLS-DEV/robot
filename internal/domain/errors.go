@@ -6,24 +6,30 @@ import (
 )
 
 var (
-	ErrEmpty = errors.New("empty")
-	ErrNotEnough = errors.New("not enough")
+	ErrEmpty         = errors.New("empty")
+	ErrNotEnough     = errors.New("not enough")
 	ErrAlreadyExists = errors.New("already exists")
-	ErrNotFound = errors.New("not found")
-	ErrInvalid = errors.New("invalid")
+	ErrNotFound      = errors.New("not found")
+	ErrInvalid       = errors.New("invalid")
+
+	// Robot
+	ErrInvalidWeight      = errors.New("invalid weight")
+	ErrInvalidDimensions  = errors.New("invalid dimensions")
+	ErrMissingPowerButton = errors.New("missing power button description")
+	ErrInvalidID          = errors.New("invalid id")
 )
 
 type RobotError struct {
-	Op	string
+	Op    string
 	Field string
 	Value any
-	Err error
-	Msg string
+	Err   error
+	Msg   string
 }
 
 func (e *RobotError) Error() string {
-	//[Create] ID: 1050 invalid. ID must be a number 
-	return	fmt.Sprintf("[%s] %s: %s - %s. %s", e.Op, e.Field, e.Value, e.Err, e.Msg) 
+	//[Create] ID: 1050 invalid. ID must be a number
+	return fmt.Sprintf("[%s] %s: %s - %s. %s", e.Op, e.Field, e.Value, e.Err, e.Msg)
 }
 
 func (e *RobotError) Unwrap() error {
@@ -36,10 +42,10 @@ func NewRobotErr(op, field string, value any, err error, msg string) *RobotError
 	}
 
 	return &RobotError{
-		Op: op,
+		Op:    op,
 		Field: field,
 		Value: value,
-		Err: err,
-		Msg: msg,
+		Err:   err,
+		Msg:   msg,
 	}
 }
