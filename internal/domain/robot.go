@@ -16,7 +16,6 @@ type Robot struct {
 	InternalPower string
 	Status        string
 	TeamID        TeamID
-	CategoryID    CategoryID
 }
 
 func NewRobot(
@@ -29,7 +28,6 @@ func NewRobot(
 	powerButton string,
 	internalPower string,
 	teamID TeamID,
-	categoryID CategoryID,
 ) (*Robot, error) {
 	// Verificar nombre vacio
 	if name == "" {
@@ -45,10 +43,6 @@ func NewRobot(
 	}
 
 	if teamID <= 0 {
-		return nil, ErrInvalidID
-	}
-
-	if categoryID <= 0 {
 		return nil, ErrInvalidID
 	}
 
@@ -68,6 +62,5 @@ func NewRobot(
 		IsValid:       false,
 		Status:        "pending",
 		TeamID:        teamID,
-		CategoryID:    categoryID,
 	}, nil
 }
